@@ -1,0 +1,11 @@
+/Users/ahmed/Desktop/jobtracker/Backend/Backend.Core/bin/Debug/net8.0/Backend.Core.deps.json
+/Users/ahmed/Desktop/jobtracker/Backend/Backend.Core/bin/Debug/net8.0/Backend.Core.dll
+/Users/ahmed/Desktop/jobtracker/Backend/Backend.Core/bin/Debug/net8.0/Backend.Core.pdb
+/Users/ahmed/Desktop/jobtracker/Backend/Backend.Core/obj/Debug/net8.0/Backend.Core.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ahmed/Desktop/jobtracker/Backend/Backend.Core/obj/Debug/net8.0/Backend.Core.AssemblyInfoInputs.cache
+/Users/ahmed/Desktop/jobtracker/Backend/Backend.Core/obj/Debug/net8.0/Backend.Core.AssemblyInfo.cs
+/Users/ahmed/Desktop/jobtracker/Backend/Backend.Core/obj/Debug/net8.0/Backend.Core.csproj.CoreCompileInputs.cache
+/Users/ahmed/Desktop/jobtracker/Backend/Backend.Core/obj/Debug/net8.0/Backend.Core.dll
+/Users/ahmed/Desktop/jobtracker/Backend/Backend.Core/obj/Debug/net8.0/refint/Backend.Core.dll
+/Users/ahmed/Desktop/jobtracker/Backend/Backend.Core/obj/Debug/net8.0/Backend.Core.pdb
+/Users/ahmed/Desktop/jobtracker/Backend/Backend.Core/obj/Debug/net8.0/ref/Backend.Core.dll
