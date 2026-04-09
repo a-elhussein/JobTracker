@@ -1,3 +1,4 @@
+using Backend.Core.DTOs;
 using Backend.Core.Models;
 using Backend.Core.Repositories;
 using Backend.Core.Services;
@@ -12,9 +13,41 @@ public class JobApplicationService: IJobApplicationService
     {
         _repository = repository;
     }
-    public async Task<IEnumerable<JobApplication>> GetAllAsync(string? status, string? company)
+
+    public async Task<PagedResult<JobApplicationResponseDto>> GetAllAsync(string? status, string? company, PaginationParams pagination)
     {
-        return await _repository.GetAllAsync(status, company);
+        if (pagination.Page < 1)
+            throw new ArgumentOutOfRangeException(nameof(pagination), "Page must be at least 1.");
+        
+        var validSortFields = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "dateApplied", "company", "role", "status"
+        };
+
+        if (!validSortFields.Contains(pagination.SortBy))
+            pagination.SortBy = "dateApplied"; 
+
+        var (items, totalCount) = await _repository.GetAllAsync(status, company, pagination);
+
+        var dtos = items.Select(j => new JobApplicationResponseDto
+        {
+            Id = j.Id,
+            Company = j.Company,
+            Role = j.Role,
+            Status = j.Status,
+            DateApplied = j.DateApplied,
+            Notes = j.Notes,
+            SalaryRange = j.SalaryRange,
+            Source = j.Source
+        });
+
+        return new PagedResult<JobApplicationResponseDto>
+        {
+            Data = dtos,
+            Page = pagination.Page,
+            PageSize = pagination.PageSize,
+            TotalCount = totalCount
+        };
     }
 
     public async Task<JobApplication?> GetByIdAsync(Guid id)

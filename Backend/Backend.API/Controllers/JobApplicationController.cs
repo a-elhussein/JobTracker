@@ -1,3 +1,4 @@
+using Backend.Core.DTOs;
 using Backend.Core.Models;
 using Backend.Core.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +15,18 @@ public class JobApplicationsController : ControllerBase
     {
         _service = service;
     }
-
+    
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] string? status, [FromQuery] string? company)
+    public async Task<ActionResult<PagedResult<JobApplicationResponseDto>>> GetAll(
+        [FromQuery] string? status,
+        [FromQuery] string? company,
+        [FromQuery] PaginationParams pagination)
     {
-        var applications = await _service.GetAllAsync(status, company);
-        return Ok(applications);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var result = await _service.GetAllAsync(status, company, pagination);
+        return Ok(result);
     }
 
     [HttpGet("{id:guid}")]
@@ -30,36 +37,103 @@ public class JobApplicationsController : ControllerBase
         if (application == null)
             return NotFound();
 
-        return Ok(application);
+        var response = new JobApplicationResponseDto()
+        {
+            Id = application.Id,
+            Company = application.Company,
+            Role = application.Role,
+            Status = application.Status,
+            DateApplied = application.DateApplied,
+            Notes = application.Notes,
+            SalaryRange = application.SalaryRange,
+            Source = application.Source
+        };
+
+        return Ok(response);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(JobApplication application)
+    public async Task<IActionResult> Create(JobApplication dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var application = new JobApplication
+        {
+            Company = dto.Company,
+            Role = dto.Role,
+            Status = dto.Status,
+            DateApplied = dto.DateApplied,
+            Notes = dto.Notes,
+            SalaryRange = dto.SalaryRange,
+            Source = dto.Source
+        };
+
         var createdApplication = await _service.CreateAsync(application);
-        return Ok(createdApplication);
+
+        var response = new JobApplicationResponseDto
+        {
+            Id = createdApplication.Id,
+            Company = createdApplication.Company,
+            Role = createdApplication.Role,
+            Status = createdApplication.Status,
+            DateApplied = createdApplication.DateApplied,
+            Notes = createdApplication.Notes,
+            SalaryRange = createdApplication.SalaryRange,
+            Source = createdApplication.Source
+        };
+
+        return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, JobApplication application)
-    {
-        if (id != application.Id)
-            return BadRequest("Route id and application id must match");
-        
-        var updatedApplication = await _service.UpdateAsync(application);
-        
-        if (updatedApplication == null)
-            return NotFound();
-        return Ok(updatedApplication);
-    }
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateJobApplicationDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
-    {
-        var deleted = await _service.DeleteAsync(id);
-        if (!deleted)
-            return NotFound();
-        
-        return NoContent();
+            if (id != dto.Id)
+                return BadRequest("Route id and body id must match.");
+
+            var application = new JobApplication
+            {
+                Id = dto.Id,
+                Company = dto.Company,
+                Role = dto.Role,
+                Status = dto.Status,
+                DateApplied = dto.DateApplied,
+                Notes = dto.Notes,
+                SalaryRange = dto.SalaryRange,
+                Source = dto.Source
+            };
+
+            var updatedApplication = await _service.UpdateAsync(application);
+
+            if (updatedApplication == null)
+                return NotFound();
+
+            var response = new JobApplicationResponseDto
+            {
+                Id = updatedApplication.Id,
+                Company = updatedApplication.Company,
+                Role = updatedApplication.Role,
+                Status = updatedApplication.Status,
+                DateApplied = updatedApplication.DateApplied,
+                Notes = updatedApplication.Notes,
+                SalaryRange = updatedApplication.SalaryRange,
+                Source = updatedApplication.Source
+            };
+
+            return Ok(response);
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var deleted = await _service.DeleteAsync(id);
+            if (!deleted)
+                return NotFound();
+
+            return NoContent();
+        }
     }
-}

@@ -1,3 +1,4 @@
+using Backend.Core.DTOs;
 using Backend.Core.Models;
 using Backend.Core.Repositories;
 using Backend.Infrastructure.Data;
@@ -13,7 +14,7 @@ public class JobApplicationRepository: IJobApplicationRepository
     {
         _context = context;
     }
-    public async Task<IEnumerable<JobApplication>> GetAllAsync(string? status, string? company)
+    public async Task<(IEnumerable<JobApplication>Items, int TotalCount)> GetAllAsync(string? status, string? company, PaginationParams pagination)
     {
         var query = _context.JobApplications.AsQueryable();
 
@@ -26,9 +27,32 @@ public class JobApplicationRepository: IJobApplicationRepository
         {
             query = query.Where(x => x.Company == company);
         }
-        return await query
-            .OrderByDescending(x => x.DateApplied)
+        var totalCount = await query.CountAsync();
+        
+        query = pagination.SortBy.ToLower() switch
+        {
+            "company"     => pagination.Descending
+                ? query.OrderByDescending(j => j.Company)
+                : query.OrderBy(j => j.Company),
+            "role"        => pagination.Descending
+                ? query.OrderByDescending(j => j.Role)
+                : query.OrderBy(j => j.Role),
+            "status"      => pagination.Descending
+                ? query.OrderByDescending(j => j.Status)
+                : query.OrderBy(j => j.Status),
+            "dateapplied" => pagination.Descending
+                ? query.OrderByDescending(j => j.DateApplied)
+                : query.OrderBy(j => j.DateApplied),
+            _             => query.OrderByDescending(j => j.DateApplied) 
+        };
+
+        var items = await query
+            .OrderByDescending(j => j.DateApplied)
+            .Skip((pagination.Page - 1) * pagination.PageSize)
+            .Take(pagination.PageSize)
             .ToListAsync();
+
+        return (items, totalCount);
     }
 
     public async Task<JobApplication?> GetByIdAsync(Guid id)
