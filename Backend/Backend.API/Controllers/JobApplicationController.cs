@@ -1,4 +1,4 @@
-using Backend.Core.Models;
+using Backend.Core.DTOs;
 using Backend.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,50 +16,45 @@ public class JobApplicationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] string? status, [FromQuery] string? company)
+    public async Task<ActionResult<PagedResult<JobApplicationResponseDto>>> GetAll(
+        [FromQuery] string? status,
+        [FromQuery] string? company,
+        [FromQuery] PaginationParams pagination)
     {
-        var applications = await _service.GetAllAsync(status, company);
-        return Ok(applications);
+        var result = await _service.GetAllAsync(status, company, pagination);
+        return Ok(result);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<ActionResult<JobApplicationResponseDto>> GetById(Guid id)
     {
-        var application = await _service.GetByIdAsync(id);
-
-        if (application == null)
-            return NotFound();
-
-        return Ok(application);
+        var result = await _service.GetByIdAsync(id);
+        return Ok(result);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(JobApplication application)
+    public async Task<ActionResult<JobApplicationResponseDto>> Create(CreateJobApplicationDto dto)
     {
-        var createdApplication = await _service.CreateAsync(application);
-        return Ok(createdApplication);
+        var result = await _service.CreateAsync(dto);
+        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, JobApplication application)
+    public async Task<ActionResult<JobApplicationResponseDto>> Update(
+        Guid id,
+        [FromBody] UpdateJobApplicationDto dto)
     {
-        if (id != application.Id)
-            return BadRequest("Route id and application id must match");
-        
-        var updatedApplication = await _service.UpdateAsync(application);
-        
-        if (updatedApplication == null)
-            return NotFound();
-        return Ok(updatedApplication);
+        if (id != dto.Id)
+            return BadRequest("Route id and body id must match.");
+
+        var result = await _service.UpdateAsync(id, dto);
+        return Ok(result);
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var deleted = await _service.DeleteAsync(id);
-        if (!deleted)
-            return NotFound();
-        
+        await _service.DeleteAsync(id);
         return NoContent();
     }
 }
