@@ -1,3 +1,4 @@
+using Backend.API.Middleware;
 using Backend.Core.Repositories;
 using Backend.Core.Services;
 using Backend.Infrastructure.Data;
@@ -26,6 +27,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 
