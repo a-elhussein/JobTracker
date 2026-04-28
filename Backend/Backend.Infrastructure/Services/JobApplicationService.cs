@@ -119,4 +119,5 @@ public class JobApplicationService: IJobApplicationService
         SalaryRange = j.SalaryRange,
         Source      = j.Source
     };
+    
 }
