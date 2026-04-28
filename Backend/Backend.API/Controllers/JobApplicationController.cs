@@ -1,11 +1,13 @@
 using Backend.Core.DTOs;
 using Backend.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class JobApplicationsController : ControllerBase
 {
     private readonly IJobApplicationService _service;
