@@ -219,7 +219,5 @@ All errors return a consistent JSON envelope:
 | `500`  | Unexpected server error |
 
 ## Roadmap
-
-- [ ] JWT Authentication
 - [ ] Analytics endpoints (applications per week, status breakdown)
 - [ ] CI/CD pipeline with GitHub Actions
