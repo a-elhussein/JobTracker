@@ -1,6 +1,6 @@
 services:
-  postgres:
-    image: postgres:16
+  db:
+    image: postgres:16-alpine
     container_name: jobtracker-postgres
     restart: always
     environment:
@@ -10,7 +10,25 @@ services:
     ports:
       - "5434:5432"
     volumes:
-      - jobtracker-postgres-data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    container_name: jobtracker-api
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
-  jobtracker-postgres-data:
+  postgres_data:
